@@ -15,6 +15,9 @@ class ModbusRTUSensor(HttpUser):
     def on_start(self):
         pass
 
+    def on_stop(self):
+        pass
+
     @task
     def read_temperature(self):
         pass

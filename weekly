@@ -1,0 +1,30 @@
+pipeline {
+    agent any
+    
+    stages {
+        stage('Build') {
+            agent { label 'neuron server' }
+            steps {
+                build job: '2.6_release_build', parameters: [string(name: 'version', value: '2.6.1'), string(name: 'branch', value: 'v2.6'), string(name: 'language', value: 'cn'), string(name: 'ui_version', value: '2.6.1')]
+            }
+        }
+        
+        stage('Deploy') {
+            agent { label 'neuron server' }
+            steps {
+                copyArtifacts filter: 'neuron-build/neuron-2.6.1-linux-amd64.deb', fingerprintArtifacts: true, projectName: '2.6_release_build', selector: lastSuccessful()
+                sh '''
+                sudo dpkg -r neuron
+                sudo dpkg -i neuron-build/neuron-2.6.1-linux-amd64.deb
+                '''
+            }
+        }
+        
+        stage('Test') {
+            agent { label 'master' }
+            steps {
+                build job: 'device test', parameters: [string(name: 'branch', value: 'main'), string(name: 'run_time', value: '600m'), booleanParam(name: 'autoquit', value: false)]
+            }
+        }
+    }
+}

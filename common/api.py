@@ -40,6 +40,12 @@ class NeuronAPI():
     def del_node(self, node):
         return self.client.delete(url="/api/v2/node", json={"name": node}, headers={"Authorization": config.default_jwt}, catch_response=True)
 
+    def start_node(self, node):
+        return self.client.post(url="/api/v2/node/ctl", json={"node": node, "cmd": 0}, headers={"Authorization": config.default_jwt}, catch_response=True)
+
+    def stop_node(self, node):
+        return self.client.post(url="/api/v2/node/ctl", json={"node": node, "cmd": 1}, headers={"Authorization": config.default_jwt}, catch_response=True)
+
     def node_setting(self, node, json):
         return self.client.post(url="/api/v2/node/setting", json={"node": node, "params": json}, headers={
             "Authorization": config.default_jwt}, catch_response=True)

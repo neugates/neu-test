@@ -22,6 +22,9 @@ class ModbusTcpRandom(HttpUser):
         self.c.modbus_tcp_node_setting('modbus_tcp', '192.168.10.152', 5023)
         self.c.add_tags("modbus_tcp", "group_1", self.tags)
 
+    def on_stop(self):
+        self.c.stop_node("modbus_tcp")
+
     @task(10)
     def read_tags(self):
         with self.c.read_tags("modbus_tcp", "group_1") as response:
@@ -57,6 +60,9 @@ class ModbusTcpFixed(HttpUser):
     def on_start(self):
         pass
 
+    def on_stop(self):
+        pass
+
     @task(10)
     def read_tags(self):
         pass
@@ -69,4 +75,3 @@ class ModbusTcpFixed(HttpUser):
     @task(1)
     def write_tags(self):
         pass
-
