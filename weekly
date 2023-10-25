@@ -23,7 +23,7 @@ pipeline {
         stage('Test') {
             agent { label 'master' }
             steps {
-                build job: 'device test', parameters: [string(name: 'branch', value: 'main'), string(name: 'run_time', value: '600m'), booleanParam(name: 'autoquit', value: false)]
+                build job: 'device test', parameters: [string(name: 'branch', value: 'main'), string(name: 'run_time', value: '600m'), booleanParam(name: 'autoquit', value: true), string(name: 'user', value: '4')]
             }
         }
     }
