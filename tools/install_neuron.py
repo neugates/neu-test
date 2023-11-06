@@ -23,4 +23,4 @@ remote = remote.Remote(ip, port, user, password)
 remote.connect()
 remote.exe_command('rm -rf /etc/config_partition/app/neuron/')
 remote.exe_command(
-    'tar xvf neuron-%s-linux-%s.tar  -C /etc/config_partition/app' % (args.version, args.arch))
+    'tar xvf /tmp/neuron-%s-linux-%s.tar  -C /etc/config_partition/app' % (args.version, args.arch))
