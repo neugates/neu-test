@@ -13,7 +13,7 @@ def parse_args():
 
 default_directory = '/tmp'
 ip = '192.168.10.111'
-port = '22'
+port = 22
 user = 'root'
 password = '3onedata'
 
