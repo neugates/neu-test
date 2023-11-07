@@ -1,8 +1,8 @@
 import random
 import string
 
-import config
-import api
+import common.config as config
+import common.api as api
 
 
 types = [config.NEU_TYPE_INT16, config.NEU_TYPE_UINT16,

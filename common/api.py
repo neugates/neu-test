@@ -3,7 +3,7 @@ import string
 
 from locust import HttpUser
 
-import config
+import common.config as config
 
 
 def random_string(length=8):
