@@ -1,6 +1,7 @@
 import logging
 import random
 import time
+import os
 
 from locust import HttpUser, task, between
 
@@ -91,7 +92,15 @@ class S7200SmartRandom(HttpUser):
         self.c.del_node(self.node_name)
         self.c.add_node(self.node_name, config.PLUGIN_S7COMM)
         self.c.add_group(self.node_name, self.group_name, 100)
-        self.c.s7comm_node_setting(self.node_name, '192.168.10.106', 102)
+        arch = os.environ.get('ARCH')
+        if arch == 'amm32':
+            self.c.s7comm_node_setting(
+                self.node_name, '192.168.10.106', 102, connection_type=3)
+        elif arch == 'arm64':
+            self.c.s7comm_node_setting(
+                self.node_name, '192.168.10.106', 102, connection_type=2)
+        else:
+            self.c.s7comm_node_setting(self.node_name, '192.168.10.106', 102)
         self.c.add_tags(self.node_name, self.group_name, self.tags)
 
     def on_stop(self):
