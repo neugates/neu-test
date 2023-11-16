@@ -1,5 +1,6 @@
 import random
 import string
+import logging
 
 from locust import HttpUser
 
@@ -62,6 +63,18 @@ class NeuronAPI():
         return self.client.post(url="/api/v2/read", json={"node": node, "group": group, "sync": sync}, headers={
             "Authorization": config.default_jwt}, catch_response=True)
 
+    def read_and_update_tags(self, node, group, map_tags):
+        with self.client.post(url="/api/v2/read", json={"node": node, "group": group, "sync": False}, headers={
+                "Authorization": config.default_jwt}, catch_response=True) as response:
+            if response.status_code == 200:
+                tags = response.json()['tags']
+                for tag in tags:
+                    if tag['name'] in map_tags:
+                        if tag.get('value') is not None:
+                            map_tags[tag['name']]['value'] = tag['value']
+                        elif tag.get('error') is not None:
+                            map_tags[tag['name']]['value'] = tag['error']
+
     def write_tag(self, node, group, tag, value):
         return self.client.post(url="/api/v2/write", json={"node": node, "group": group, "tag": tag,
                                                            "value": value}, headers={"Authorization": config.default_jwt}, catch_response=True)
@@ -73,3 +86,7 @@ class NeuronAPI():
     def modbus_tcp_node_setting(self, node, host, port, connection_mode=0, transport_mode=0, interval=0, timeout=3000):
         return self.node_setting(node, json={"connection_mode": connection_mode, "transport_mode": transport_mode, "interval": interval,
                                              "host": host, "port": port, "timeout": timeout})
+
+    def s7comm_node_setting(self, node, host, port, local_tsap=0, remote_tsap=0, pdu_size=960, connection_type=1, module=0, rack=0, slot=1):
+        return self.node_setting(node, json={"host": host, "port": port, "local_tsap": local_tsap, "remote_tsap": remote_tsap,
+                                             "pdu_size": pdu_size, "connection_type": connection_type, "module": module, "rack": rack, "slot": slot})
