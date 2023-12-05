@@ -53,6 +53,14 @@ def random_value(tags: List[dict]) -> None:
             value = random.randint(0, 1)
         elif type == config.NEU_TYPE_STRING:
             value = "hello" + str(random.randint(0, 65535))
+        elif type == config.NEU_TYPE_INT64:
+            value = random.randint(-9223372036854775808, 9223372036854775807)
+        elif type == config.NEU_TYPE_UINT64:
+            value = random.randint(0, 18446744073709551615)
+        elif type == config.NEU_TYPE_INT8:
+            value = random.randint(-128, 127)
+        elif type == config.NEU_TYPE_UINT8:
+            value = random.randint(0, 255)
         else:
             continue
 
@@ -82,7 +90,7 @@ def gen_kepserver_tags() -> dict:
             }
 
 
-def cct_tags(num: int) -> List[dict]:
+def kepserver_tags(num: int) -> List[dict]:
     num_rows = num if num <= 4000 else 4000
     gen = gen_kepserver_tags()
     return list(itertools.islice(gen, num_rows))
@@ -186,13 +194,13 @@ def cct_tags() -> List[dict]:
     }
     tags.append(cct_string)
 
-    cct_datetime = {
-        "name": "i_datetime",
-        "address": "0!2258",
-        "attribute": config.NEU_TAG_ATTRIBUTE_READ,
-        "type": config.NEU_TYPE_UINT32,
-    }
-    tags.append(cct_datetime)
+    # cct_datetime = {
+    #     "name": "i_datetime",
+    #     "address": "0!2258",
+    #     "attribute": config.NEU_TAG_ATTRIBUTE_READ,
+    #     "type": config.NEU_TYPE_UINT32,
+    # }
+    # tags.append(cct_datetime)
 
     cct_guid_bool = {
         "name": "guid_bool",
@@ -290,13 +298,13 @@ def cct_tags() -> List[dict]:
     }
     tags.append(cct_guid_string)
 
-    cct_feak_guid_string = {
-        "name": "feak_guid_cstr",
-        "address": "1!c496578a0dfe4b8f870a745238c6ae0b----",
-        "attribute": config.NEU_TAG_ATTRIBUTE_RW,
-        "type": config.NEU_TYPE_STRING,
-    }
-    tags.append(cct_feak_guid_string)
+    # cct_feak_guid_string = {
+    #     "name": "feak_guid_cstr",
+    #     "address": "1!c496578a0dfe4b8f870a745238c6ae0b----",
+    #     "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+    #     "type": config.NEU_TYPE_STRING,
+    # }
+    # tags.append(cct_feak_guid_string)
 
     cct_numeric_id_string = {
         "name": "numeric_id_cstr",
@@ -306,21 +314,21 @@ def cct_tags() -> List[dict]:
     }
     tags.append(cct_numeric_id_string)
 
-    cct_unsupported_type = {
-        "name": "unsupported_type",
-        "address": "0!2260",
-        "attribute": config.NEU_TAG_ATTRIBUTE_RW,
-        "type": config.NEU_TYPE_STRING,
-    }
-    tags.append(cct_unsupported_type)
+    # cct_unsupported_type = {
+    #     "name": "unsupported_type",
+    #     "address": "0!2260",
+    #     "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+    #     "type": config.NEU_TYPE_STRING,
+    # }
+    # tags.append(cct_unsupported_type)
 
-    cct_not_good_address = {
-        "name": "not_good_address",
-        "address": "1!neu.not_good",
-        "attribute": config.NEU_TAG_ATTRIBUTE_RW,
-        "type": config.NEU_TYPE_STRING,
-    }
-    tags.append(cct_not_good_address)
+    # cct_not_good_address = {
+    #     "name": "not_good_address",
+    #     "address": "1!neu.not_good",
+    #     "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+    #     "type": config.NEU_TYPE_STRING,
+    # }
+    # tags.append(cct_not_good_address)
 
     cct_ptr_string = {
         "name": "ptr_cstr",
@@ -329,6 +337,55 @@ def cct_tags() -> List[dict]:
         "type": config.NEU_TYPE_STRING,
     }
     tags.append(cct_ptr_string)
+
+    return tags
+
+
+def prosys_tags() -> List[dict]:
+    return [
+        {
+            "name": "constant",
+            "address": "3!1001",
+            "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+            "type": config.NEU_TYPE_DOUBLE,
+        },
+        {
+            "name": "counter",
+            "address": "3!1002",
+            "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+            "type": config.NEU_TYPE_INT32,
+        },
+        {
+            "name": "random",
+            "address": "3!1003",
+            "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+            "type": config.NEU_TYPE_DOUBLE,
+        },
+        {
+            "name": "sawtooth",
+            "address": "3!1004",
+            "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+            "type": config.NEU_TYPE_DOUBLE,
+        },
+        {
+            "name": "sinusoid",
+            "address": "3!1005",
+            "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+            "type": config.NEU_TYPE_DOUBLE,
+        },
+        {
+            "name": "square",
+            "address": "3!1006",
+            "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+            "type": config.NEU_TYPE_DOUBLE,
+        },
+        {
+            "name": "triangle",
+            "address": "3!1007",
+            "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+            "type": config.NEU_TYPE_DOUBLE,
+        },
+    ]
 
 
 def opcua_node_setting(

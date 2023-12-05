@@ -7,12 +7,10 @@ from locust import HttpUser, task, between
 
 import common.api as api
 import common.config as config
-import common.modbus as modbus
-import common.opcua as opcua
-from common.opcua import kepware_node_setting, cct_tags, random_value
+from common.opcua import opcua_node_setting, cct_tags, random_value
 
 
-class IntellutionTest(HttpUser):
+class CCTTest(HttpUser):
     wait_time = between(0.1, 2)
 
     def __init__(self, *args, **kwargs):
@@ -24,11 +22,12 @@ class IntellutionTest(HttpUser):
     def on_start(self):
         self.c.del_node("opcua_cct")
         self.c.add_node("opcua_cct", config.PLUGIN_OPCUA)
-        self.c.add_group("opcua_cct", "cct", 3000)
+        self.c.add_group("opcua_cct", "cct", 100)
 
-        kepware_node_setting(
+        opcua_node_setting(
             self.c,
             node="opcua_cct",
+            url="opc.tcp://localhost:48402",
         )
 
         self.c.add_tags("opcua_cct", "cct", self.tags)

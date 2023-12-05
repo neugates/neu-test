@@ -7,40 +7,38 @@ from locust import HttpUser, task, between
 
 import common.api as api
 import common.config as config
-from common.opcua import opcua_node_setting, kepserver_tags, random_value
+from common.opcua import opcua_node_setting, prosys_tags, random_value
 
 
-class IntellutionTest(HttpUser):
+class ProsysTest(HttpUser):
     wait_time = between(0.1, 2)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.c = api.NeuronAPI(self.client)
-        self.tags = kepserver_tags(4000)
+        self.tags = prosys_tags()
         random.shuffle(self.tags)
 
     def on_start(self):
-        self.c.del_node("opcua_intellution")
-        self.c.add_node("opcua_intellution", config.PLUGIN_OPCUA)
-        self.c.add_group("opcua_intellution", "intellution", 3000)
+        self.c.del_node("opcua_prosys")
+        self.c.add_node("opcua_prosys", config.PLUGIN_OPCUA)
+        self.c.add_group("opcua_prosys", "prosys", 100)
 
         opcua_node_setting(
             self.c,
-            node="opcua_intellution",
-            url="opc.tcp://192.168.10.174:49310",
-            username="",
-            password="",
+            node="opcua_prosys",
+            url="opc.tcp://192.168.10.113:53530/OPCUA/SimulationServer",
         )
 
-        self.c.add_tags("opcua_intellution", "intellution", self.tags)
+        self.c.add_tags("opcua_prosys", "prosys", self.tags)
 
     def on_stop(self):
-        self.c.stop_node("opcua_intellution")
+        self.c.stop_node("opcua_prosys")
 
     @task(10)
     def read_tags(self):
-        with self.c.read_tags("opcua_intellution", "intellution") as response:
-            response.request_meta["name"] = "opcua intellution read tags"
+        with self.c.read_tags("opcua_prosys", "prosys") as response:
+            response.request_meta["name"] = "opcua prosys read tags"
             if response.status_code == 200:
                 tags = response.json()["tags"]
                 result = list(filter(lambda tag: tag.get("value") is None, tags))
@@ -54,21 +52,21 @@ class IntellutionTest(HttpUser):
 
     @task(1)
     def write_tag(self):
-        selected = random.sample(self.tags, 200)
+        selected = random.sample(self.tags, 5)
         random_value(selected)
         for tag in selected:
             with self.c.write_tag(
-                "opcua_intellution", "intellution", tag["name"], tag["value"]
+                "opcua_prosys", "prosys", tag["name"], tag["value"]
             ) as response:
                 pass
 
     @task(1)
     def write_tags(self):
-        selected = random.sample(self.tags, 10)
+        selected = random.sample(self.tags, 5)
         random_value(selected)
         with self.c.write_tags(
-            "opcua_intellution",
-            "intellution",
+            "opcua_prosys",
+            "prosys",
             [{"tag": tag["name"], "value": tag["value"]} for tag in selected],
         ) as response:
             logging.info(response.status_code)

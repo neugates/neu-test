@@ -7,9 +7,7 @@ from locust import HttpUser, task, between
 
 import common.api as api
 import common.config as config
-import common.modbus as modbus
-import common.opcua as opcua
-from common.opcua import opcua_node_setting, cct_tags, random_value
+from common.opcua import opcua_node_setting, kepserver_tags, random_value
 
 
 class KepwareTest(HttpUser):
@@ -18,7 +16,7 @@ class KepwareTest(HttpUser):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.c = api.NeuronAPI(self.client)
-        self.tags = cct_tags(4000)
+        self.tags = kepserver_tags(4000)
         random.shuffle(self.tags)
 
     def on_start(self):
