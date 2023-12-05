@@ -82,13 +82,256 @@ def gen_kepserver_tags() -> dict:
             }
 
 
-def kepserver_tags(num: int) -> List[dict]:
+def cct_tags(num: int) -> List[dict]:
     num_rows = num if num <= 4000 else 4000
     gen = gen_kepserver_tags()
     return list(itertools.islice(gen, num_rows))
 
 
-def kepware_node_setting(
+def cct_tags() -> List[dict]:
+    tags = []
+    cct_bool = {
+        "name": "s_bool",
+        "address": "1!ft.type_bool",
+        "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+        "type": config.NEU_TYPE_BOOL,
+    }
+    tags.append(cct_bool)
+
+    cct_int8 = {
+        "name": "s_int8",
+        "address": "1!ft.type_int8",
+        "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+        "type": config.NEU_TYPE_INT8,
+    }
+    tags.append(cct_int8)
+
+    cct_uint8 = {
+        "name": "s_uint8",
+        "address": "1!ft.type_uint8",
+        "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+        "type": config.NEU_TYPE_UINT8,
+    }
+    tags.append(cct_uint8)
+
+    cct_int16 = {
+        "name": "s_int16",
+        "address": "1!ft.type_int16",
+        "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+        "type": config.NEU_TYPE_INT16,
+    }
+    tags.append(cct_int16)
+
+    cct_uint16 = {
+        "name": "s_uint16",
+        "address": "1!ft.type_uint16",
+        "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+        "type": config.NEU_TYPE_UINT16,
+    }
+    tags.append(cct_uint16)
+
+    cct_int32 = {
+        "name": "s_int32",
+        "address": "1!ft.type_int32",
+        "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+        "type": config.NEU_TYPE_INT32,
+    }
+    tags.append(cct_int32)
+
+    cct_uint32 = {
+        "name": "s_uint32",
+        "address": "1!ft.type_uint32",
+        "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+        "type": config.NEU_TYPE_UINT32,
+    }
+    tags.append(cct_uint32)
+
+    cct_int64 = {
+        "name": "s_int64",
+        "address": "1!ft.type_int64",
+        "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+        "type": config.NEU_TYPE_INT64,
+    }
+    tags.append(cct_int64)
+
+    cct_uint64 = {
+        "name": "s_uint64",
+        "address": "1!ft.type_uint64",
+        "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+        "type": config.NEU_TYPE_UINT64,
+    }
+    tags.append(cct_uint64)
+
+    cct_float = {
+        "name": "s_float",
+        "address": "1!ft.type_float",
+        "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+        "type": config.NEU_TYPE_FLOAT,
+    }
+    tags.append(cct_float)
+
+    cct_double = {
+        "name": "s_double",
+        "address": "1!ft.type_double",
+        "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+        "type": config.NEU_TYPE_DOUBLE,
+    }
+    tags.append(cct_double)
+
+    cct_string = {
+        "name": "s_string",
+        "address": "1!ft.type_cstr",
+        "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+        "type": config.NEU_TYPE_STRING,
+    }
+    tags.append(cct_string)
+
+    cct_datetime = {
+        "name": "i_datetime",
+        "address": "0!2258",
+        "attribute": config.NEU_TAG_ATTRIBUTE_READ,
+        "type": config.NEU_TYPE_UINT32,
+    }
+    tags.append(cct_datetime)
+
+    cct_guid_bool = {
+        "name": "guid_bool",
+        "address": "1!c496578a-0dfe-4b8f-870a-745238c6ae02",
+        "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+        "type": config.NEU_TYPE_BOOL,
+    }
+    tags.append(cct_guid_bool)
+
+    cct_guid_int8 = {
+        "name": "guid_int8",
+        "address": "1!c496578a-0dfe-4b8f-870a-745238c6ae00",
+        "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+        "type": config.NEU_TYPE_INT8,
+    }
+    tags.append(cct_guid_int8)
+
+    cct_guid_uint8 = {
+        "name": "guid_uint8",
+        "address": "1!c496578a-0dfe-4b8f-870a-745238c6ae01",
+        "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+        "type": config.NEU_TYPE_UINT8,
+    }
+    tags.append(cct_guid_uint8)
+
+    cct_guid_int16 = {
+        "name": "guid_int16",
+        "address": "1!c496578a-0dfe-4b8f-870a-745238c6ae03",
+        "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+        "type": config.NEU_TYPE_INT16,
+    }
+    tags.append(cct_guid_int16)
+
+    cct_guid_uint16 = {
+        "name": "guid_uint16",
+        "address": "1!c496578a-0dfe-4b8f-870a-745238c6ae04",
+        "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+        "type": config.NEU_TYPE_UINT16,
+    }
+    tags.append(cct_guid_uint16)
+
+    cct_guid_int32 = {
+        "name": "guid_int32",
+        "address": "1!c496578a-0dfe-4b8f-870a-745238c6ae05",
+        "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+        "type": config.NEU_TYPE_INT32,
+    }
+    tags.append(cct_guid_int32)
+
+    cct_guid_uint32 = {
+        "name": "guid_uint32",
+        "address": "1!c496578a-0dfe-4b8f-870a-745238c6ae06",
+        "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+        "type": config.NEU_TYPE_UINT32,
+    }
+    tags.append(cct_guid_uint32)
+
+    cct_guid_int64 = {
+        "name": "guid_int64",
+        "address": "1!c496578a-0dfe-4b8f-870a-745238c6ae07",
+        "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+        "type": config.NEU_TYPE_INT64,
+    }
+    tags.append(cct_guid_int64)
+
+    cct_guid_uint64 = {
+        "name": "guid_uint64",
+        "address": "1!c496578a-0dfe-4b8f-870a-745238c6ae08",
+        "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+        "type": config.NEU_TYPE_UINT64,
+    }
+    tags.append(cct_guid_uint64)
+
+    cct_guid_float = {
+        "name": "guid_float",
+        "address": "1!c496578a-0dfe-4b8f-870a-745238c6ae09",
+        "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+        "type": config.NEU_TYPE_FLOAT,
+    }
+    tags.append(cct_guid_float)
+
+    cct_guid_double = {
+        "name": "guid_double",
+        "address": "1!c496578a-0dfe-4b8f-870a-745238c6ae0a",
+        "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+        "type": config.NEU_TYPE_DOUBLE,
+    }
+    tags.append(cct_guid_double)
+
+    cct_guid_string = {
+        "name": "guid_string",
+        "address": "1!c496578a-0dfe-4b8f-870a-745238c6ae0b",
+        "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+        "type": config.NEU_TYPE_STRING,
+    }
+    tags.append(cct_guid_string)
+
+    cct_feak_guid_string = {
+        "name": "feak_guid_cstr",
+        "address": "1!c496578a0dfe4b8f870a745238c6ae0b----",
+        "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+        "type": config.NEU_TYPE_STRING,
+    }
+    tags.append(cct_feak_guid_string)
+
+    cct_numeric_id_string = {
+        "name": "numeric_id_cstr",
+        "address": "1!1234567",
+        "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+        "type": config.NEU_TYPE_STRING,
+    }
+    tags.append(cct_numeric_id_string)
+
+    cct_unsupported_type = {
+        "name": "unsupported_type",
+        "address": "0!2260",
+        "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+        "type": config.NEU_TYPE_STRING,
+    }
+    tags.append(cct_unsupported_type)
+
+    cct_not_good_address = {
+        "name": "not_good_address",
+        "address": "1!neu.not_good",
+        "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+        "type": config.NEU_TYPE_STRING,
+    }
+    tags.append(cct_not_good_address)
+
+    cct_ptr_string = {
+        "name": "ptr_cstr",
+        "address": "1!large_string",
+        "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+        "type": config.NEU_TYPE_STRING,
+    }
+    tags.append(cct_ptr_string)
+
+
+def opcua_node_setting(
     api: api.NeuronAPI,
     node: str,
     url: str = "opc.tcp://localhost:4840",

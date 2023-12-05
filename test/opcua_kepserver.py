@@ -9,7 +9,7 @@ import common.api as api
 import common.config as config
 import common.modbus as modbus
 import common.opcua as opcua
-from common.opcua import kepware_node_setting, kepserver_tags, random_value
+from common.opcua import opcua_node_setting, cct_tags, random_value
 
 
 class KepwareTest(HttpUser):
@@ -18,7 +18,7 @@ class KepwareTest(HttpUser):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.c = api.NeuronAPI(self.client)
-        self.tags = kepserver_tags(4000)
+        self.tags = cct_tags(4000)
         random.shuffle(self.tags)
 
     def on_start(self):
@@ -26,7 +26,7 @@ class KepwareTest(HttpUser):
         self.c.add_node("opcua_kepware", config.PLUGIN_OPCUA)
         self.c.add_group("opcua_kepware", "kepware", 3000)
 
-        kepware_node_setting(
+        opcua_node_setting(
             self.c,
             node="opcua_kepware",
             url="opc.tcp://192.168.10.174:49320",
