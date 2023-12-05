@@ -70,4 +70,4 @@ class CCTTest(HttpUser):
             [{"tag": tag["name"], "value": tag["value"]} for tag in selected],
         ) as response:
             pass
-            #logging.info(response.status_code)
+            # logging.info(response.status_code)

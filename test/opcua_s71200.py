@@ -43,8 +43,7 @@ class S71200Test(HttpUser):
             response.request_meta["name"] = "opcua s71200 read tags"
             if response.status_code == 200:
                 tags = response.json()["tags"]
-                result = list(
-                    filter(lambda tag: tag.get("value") is None, tags))
+                result = list(filter(lambda tag: tag.get("value") is None, tags))
                 if len(result) == 0:
                     response.success()
                 else:
