@@ -388,6 +388,106 @@ def prosys_tags() -> List[dict]:
     ]
 
 
+def wincc_tags() -> List[dict]:
+    return [
+        {
+            "name": "opc_ua_DATA_A",
+            "address": "1!t|opc_ua_DATA_A",
+            "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+            "type": config.NEU_TYPE_INT16,
+        },
+        {
+            "name": "opc_ua_DATA_B",
+            "address": "1!t|opc_ua_DATA_B",
+            "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+            "type": config.NEU_TYPE_INT32,
+        },
+        {
+            "name": "opc_ua_DATA_C",
+            "address": "1!t|opc_ua_DATA_C",
+            "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+            "type": config.NEU_TYPE_STRING,
+        },
+        {
+            "name": "opc_ua_DATA_D0",
+            "address": "1!t|opc_ua_DATA_D[0]",
+            "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+            "type": config.NEU_TYPE_INT16,
+        },
+        {
+            "name": "opc_ua_DATA_D1",
+            "address": "1!t|opc_ua_DATA_D[1]",
+            "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+            "type": config.NEU_TYPE_INT16,
+        },
+    ]
+
+
+def s71200_tags() -> List[dict]:
+    return [
+        {
+            "name": "v1-1",
+            "address": "4!29",
+            "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+            "type": config.NEU_TYPE_UINT16,
+        },
+        {
+            "name": "v1-2",
+            "address": "4!38",
+            "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+            "type": config.NEU_TYPE_UINT16,
+        },
+        {
+            "name": "v2-1",
+            "address": "4!39",
+            "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+            "type": config.NEU_TYPE_INT8,
+        },
+        {
+            "name": "v2-2",
+            "address": "4!30",
+            "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+            "type": config.NEU_TYPE_STRING,
+        },
+        {
+            "name": "v3-1",
+            "address": "4!40",
+            "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+            "type": config.NEU_TYPE_DOUBLE,
+        },
+        {
+            "name": "v3-2",
+            "address": "4!31",
+            "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+            "type": config.NEU_TYPE_UINT16,
+        },
+        {
+            "name": "v4-1",
+            "address": "4!41",
+            "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+            "type": config.NEU_TYPE_UINT32,
+        },
+        {
+            "name": "v4-2",
+            "address": "4!32",
+            "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+            "type": config.NEU_TYPE_FLOAT,
+        },
+        {
+            "name": "v5-1",
+            "address": "4!42",
+            "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+            "type": config.NEU_TYPE_UINT16,
+        },
+        {
+            "name": "v5-2",
+            "address": "4!33",
+            "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+            "type": config.NEU_TYPE_DOUBLE,
+        },
+    ]
+
+
 def opcua_node_setting(
     api: api.NeuronAPI,
     node: str,
