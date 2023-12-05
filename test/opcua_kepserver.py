@@ -18,7 +18,7 @@ class KepwareTest(HttpUser):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.c = api.NeuronAPI(self.client)
-        self.tags = kepserver_tags()
+        self.tags = kepserver_tags(4000)
         random.shuffle(self.tags)
 
     def on_start(self):

@@ -1,3 +1,4 @@
+import itertools
 from typing import List
 import os
 import csv
@@ -33,7 +34,7 @@ def kepserver_type(raw_type: str) -> int:
         return config.NEU_TYPE_ERROR
 
 
-def random_value(tags: List[dict]):
+def random_value(tags: List[dict]) -> None:
     for tag in tags:
         type = tag["type"]
         if type == config.NEU_TYPE_INT16:
@@ -70,30 +71,21 @@ def gen_kepserver_tags() -> dict:
         reader = csv.reader(csvfile, delimiter=",")
         next(reader)
         for i, row in enumerate(reader):
-            name = row[1]
-            address = f"2!{KEPSERVER_CHANNEL_NAME}.{KEPSERVER_DEVICE_NAME}.{row[0]}"
-            attribute = config.NEU_TAG_ATTRIBUTE_RW
-            type = kepserver_type(row[2])
-            description = row[15]
-
-            # logging.info(
-            #     f"index: {i}, name: {name}, address: {address}, attribute: {attribute}, type: {type}, description: {description}"
-            # )
-
             yield {
-                "name": name,
-                "address": address,
-                "attribute": attribute,
-                "type": type,
-                "description": description,
+                "name": row[1],
+                "address": f"2!{KEPSERVER_CHANNEL_NAME}.{KEPSERVER_DEVICE_NAME}.{row[0]}",
+                "attribute": config.NEU_TAG_ATTRIBUTE_RW,
+                "type": kepserver_type(row[2]),
+                "description": row[15],
                 "decimal": 0,
                 "precision": 0,
             }
 
 
-def kepserver_tags() -> List[dict]:
+def kepserver_tags(num: int) -> List[dict]:
+    num_rows = num if num <= 4000 else 4000
     gen = gen_kepserver_tags()
-    return list(gen)
+    return list(itertools.islice(gen, num_rows))
 
 
 def kepware_node_setting(
