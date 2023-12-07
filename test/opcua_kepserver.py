@@ -71,4 +71,5 @@ class KepwareTest(HttpUser):
             "kepware",
             [{"tag": tag["name"], "value": tag["value"]} for tag in selected],
         ) as response:
-            logging.info(response.status_code)
+            pass
+            #logging.info(response.status_code)
