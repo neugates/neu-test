@@ -54,7 +54,7 @@ class MetricsUser(HttpUser):
                     response.failure('memory is growing, current: ' +
                                      str(current) + ' last: ' + str(self.last_memory))
                 else:
-                    self.last_memory = current
                     response.success()
                     logging.warning('current memory: ' +
                                     str(current) + ', init memory: ' + str(self.init_memory))
+                self.last_memory = current
