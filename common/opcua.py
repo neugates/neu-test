@@ -1,4 +1,5 @@
 import itertools
+import time
 from typing import List
 import os
 import csv
@@ -34,7 +35,7 @@ def kepserver_type(raw_type: str) -> int:
         return config.NEU_TYPE_ERROR
 
 
-def random_value(tags: List[dict]) -> None:
+def opcua_random_value(tags: List[dict]) -> None:
     for tag in tags:
         type = tag["type"]
         if type == config.NEU_TYPE_INT16:
@@ -65,6 +66,15 @@ def random_value(tags: List[dict]) -> None:
             continue
 
         tag["value"] = value
+
+
+def opcua_value_equal(tag1: dict, tag2: dict, type: int) -> bool:
+    if tag1.get("value", None) is None:
+        return False
+
+    if type == config.NEU_TYPE_FLOAT or type == config.NEU_TYPE_DOUBLE:
+        return abs(tag1["value"] - tag2["value"]) < 0.001
+    return tag1["value"] == tag2["value"]
 
 
 def gen_kepserver_tags() -> dict:
@@ -509,7 +519,126 @@ def opcua_node_setting(
     )
 
 
+def opcua_read_check(
+    api: api.NeuronAPI,
+    test: str,
+    node: str,
+    group: str,
+    selected: List[dict],
+) -> dict:
+    with api.read_tags(node, group) as response:
+        response.request_meta["name"] = f"{test} read tags"
+        if response.status_code == 200:
+            tags = response.json()["tags"]
+            result = list(
+                filter(
+                    lambda tag: tag["name"] in [t["name"] for t in selected],
+                    tags,
+                )
+            )
+
+            if len(result) == 0:
+                response.failure("read tags error")
+                return
+            else:
+                for r in result:
+                    for s in selected:
+                        if s["name"] == r["name"]:
+                            if opcua_value_equal(r, s, s["type"]):
+                                response.success()
+                            else:
+                                response.failure(f"write/read tag:{r['name']} error")
+                                # logging.warning(
+                                #     f"{test} check tag:{r['name']} error, write:{s['value']}, read:{r['value']}"
+                                # )
+        else:
+            response.failure("Failed to read tags")
+
+
+def opcua_default_node(
+    api: api.NeuronAPI,
+    node: str,
+    group: str,
+    tags: List[dict],
+    interval: int = 100,
+) -> None:
+    api.del_node(node)
+    api.add_node(node, config.PLUGIN_OPCUA)
+    api.add_group(node, group, interval)
+    api.add_tags(node, group, tags)
+
+
+def opcua_read_tags(
+    api: api.NeuronAPI,
+    test: str,
+    node: str,
+    group: str,
+) -> None:
+    with api.read_tags(node, group) as response:
+        response.request_meta["name"] = f"{test} read tags"
+        if response.status_code == 200:
+            tags = response.json()["tags"]
+            result = list(filter(lambda tag: tag.get("value") is None, tags))
+            if len(result) == 0:
+                response.success()
+            else:
+                # logging.warning("read tags error" + str(result))
+                response.failure("read tags error")
+        else:
+            response.failure("Failed to read tags")
+
+
+def opcua_write_tag(
+    api: api.NeuronAPI,
+    test: str,
+    node: str,
+    group: str,
+    selected: List[dict],
+    timeout: float = 0.5,
+) -> dict:
+    for tag in selected:
+        with api.write_tag(node, group, tag["name"], tag["value"]) as response:
+            response.request_meta["name"] = f"{test} write tag"
+            if response.status_code != 200:
+                response.failure("Failed to write tag")
+                logging.warning(
+                    f"{test} write tag, code:{response.status_code}, error:{response.text}, tag:{tag}"
+                )
+
+                return
+
+    time.sleep(timeout)
+    opcua_read_check(api, test, node, group, selected)
+
+
+def opcua_write_tags(
+    api: api.NeuronAPI,
+    test: str,
+    node: str,
+    group: str,
+    selected: List[dict],
+    timeout: float = 0.5,
+) -> dict:
+    with api.write_tags(
+        node,
+        group,
+        [{"tag": tag["name"], "value": tag["value"]} for tag in selected],
+    ) as response:
+        response.request_meta["name"] = f"{test} write tags"
+        if response.status_code != 200:
+            response.failure("Failed to write tags")
+            logging.warning(
+                f"{test} write tags, code:{response.status_code}, error:{response.text}"
+            )
+
+            return
+
+    time.sleep(timeout)
+    opcua_read_check(api, test, node, group, selected)
+
+
 if __name__ == "__main__":
-    gen = gen_kepserver_tags()
-    for row in gen:
-        print(row)
+    pass
+    # gen = gen_kepserver_tags()
+    # for row in gen:
+    #     print(row)

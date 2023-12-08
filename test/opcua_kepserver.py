@@ -7,7 +7,21 @@ from locust import HttpUser, task, between
 
 import common.api as api
 import common.config as config
-from common.opcua import opcua_node_setting, kepserver_tags, random_value
+from common.opcua import (
+    opcua_node_setting,
+    kepserver_tags,
+    opcua_random_value,
+    opcua_default_node,
+    opcua_read_tags,
+    opcua_write_tag,
+    opcua_write_tags,
+)
+
+
+DEFAULT_TEST_NAME = "ua/kepware"
+DEFAULT_NODE_NAME = "opcua_kepware"
+DEFAULT_GROUP_NAME = "kepware"
+DEFAULT_URL = "opc.tcp://192.168.10.174:49320"
 
 
 class KepwareTest(HttpUser):
@@ -20,56 +34,54 @@ class KepwareTest(HttpUser):
         random.shuffle(self.tags)
 
     def on_start(self):
-        self.c.del_node("opcua_kepware")
-        self.c.add_node("opcua_kepware", config.PLUGIN_OPCUA)
-        self.c.add_group("opcua_kepware", "kepware", 3000)
-
-        opcua_node_setting(
-            self.c,
-            node="opcua_kepware",
-            url="opc.tcp://192.168.10.174:49320",
-            username="",
-            password="",
+        opcua_default_node(
+            api=self.c,
+            node=DEFAULT_NODE_NAME,
+            group=DEFAULT_GROUP_NAME,
+            tags=self.tags,
+            interval=3000,
         )
 
-        self.c.add_tags("opcua_kepware", "kepware", self.tags)
+        opcua_node_setting(
+            api=self.c,
+            node=DEFAULT_NODE_NAME,
+            url=DEFAULT_URL,
+        )
 
     def on_stop(self):
-        self.c.stop_node("opcua_kepware")
+        self.c.stop_node(DEFAULT_NODE_NAME)
 
     @task(10)
     def read_tags(self):
-        with self.c.read_tags("opcua_kepware", "kepware") as response:
-            response.request_meta["name"] = "opcua kepware read tags"
-            if response.status_code == 200:
-                tags = response.json()["tags"]
-                result = list(filter(lambda tag: tag.get("value") is None, tags))
-                if len(result) == 0:
-                    response.success()
-                else:
-                    # logging.warning("read tags error" + str(result))
-                    response.failure("read tags error")
-            else:
-                response.failure("Failed to read tags")
+        opcua_read_tags(
+            api=self.c,
+            test=DEFAULT_TEST_NAME,
+            node=DEFAULT_NODE_NAME,
+            group=DEFAULT_GROUP_NAME,
+        )
 
     @task(1)
     def write_tag(self):
         selected = random.sample(self.tags, 200)
-        random_value(selected)
-        for tag in selected:
-            with self.c.write_tag(
-                "opcua_kepware", "kepware", tag["name"], tag["value"]
-            ) as response:
-                pass
+        opcua_random_value(selected)
+        opcua_write_tag(
+            api=self.c,
+            test=DEFAULT_TEST_NAME,
+            node=DEFAULT_NODE_NAME,
+            group=DEFAULT_GROUP_NAME,
+            selected=selected,
+            timeout=3,
+        )
 
     @task(1)
     def write_tags(self):
         selected = random.sample(self.tags, 10)
-        random_value(selected)
-        with self.c.write_tags(
-            "opcua_kepware",
-            "kepware",
-            [{"tag": tag["name"], "value": tag["value"]} for tag in selected],
-        ) as response:
-            pass
-            #logging.info(response.status_code)
+        opcua_random_value(selected)
+        opcua_write_tags(
+            api=self.c,
+            test=DEFAULT_TEST_NAME,
+            node=DEFAULT_NODE_NAME,
+            group=DEFAULT_GROUP_NAME,
+            selected=selected,
+            timeout=3,
+        )
