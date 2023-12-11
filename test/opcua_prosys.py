@@ -65,7 +65,7 @@ class ProsysTest(HttpUser):
             node=DEFAULT_NODE_NAME,
             group=DEFAULT_GROUP_NAME,
             selected=selected,
-            timeout=1,
+            timeout=3,
         )
 
     @task(1)
@@ -78,5 +78,5 @@ class ProsysTest(HttpUser):
             node=DEFAULT_NODE_NAME,
             group=DEFAULT_GROUP_NAME,
             selected=selected,
-            timeout=1,
+            timeout=3,
         )
