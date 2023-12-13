@@ -155,6 +155,6 @@ def write_and_check(c, tags, map_tags, request_name, node_name, group_name):
                                 tag['name'], tag['address'], value, map_tags[tag['name']]['value'])
                 response.failure("write tag error")
         else:
-            logging.warning("write error %s %s %s %s %s", node_name, group_name, tags['name'],
+            logging.warning("write error %s %s %s %s %s", node_name, group_name, tag['name'],
                             response.status_code, response.json())
             response.failure("Failed to write tags")
