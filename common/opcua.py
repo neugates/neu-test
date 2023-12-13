@@ -1,6 +1,6 @@
 import itertools
 import time
-from typing import List
+from typing import Generator, List
 import os
 import csv
 import logging
@@ -11,7 +11,7 @@ import common.config as config
 
 KEPSERVER_DEVICE_NAME = "test"
 KEPSERVER_CHANNEL_NAME = "数据类型示例"
-KEPSERVER_CSV = "kepserver.csv"
+KEPSERVER_CSV = "kepserver_k.csv"
 
 
 def kepserver_type(raw_type: str) -> int:
@@ -77,7 +77,7 @@ def opcua_value_equal(tag1: dict, tag2: dict, type: int) -> bool:
     return tag1["value"] == tag2["value"]
 
 
-def gen_kepserver_tags() -> dict:
+def gen_kepserver_tags() -> Generator[dict, None, None]:
     current_file_path = os.path.abspath(__file__)
     parent_directory_path = os.path.dirname(current_file_path)
     data_directory_path = os.path.join(
@@ -548,9 +548,9 @@ def opcua_read_check(
                                 response.success()
                             else:
                                 response.failure(f"write/read tag:{r['name']} error")
-                                # logging.warning(
-                                #     f"{test} check tag:{r['name']} error, write:{s['value']}, read:{r['value']}"
-                                # )
+                                logging.warning(
+                                    f"{test} check tag:{r['name']} error, write:{s['value']}, read:{r['value']}"
+                                )
         else:
             response.failure("Failed to read tags")
 

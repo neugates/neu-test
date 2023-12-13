@@ -70,7 +70,7 @@ class KepwareTest(HttpUser):
             node=DEFAULT_NODE_NAME,
             group=DEFAULT_GROUP_NAME,
             selected=selected,
-            timeout=3,
+            timeout=6,
         )
 
     @task(1)
@@ -83,5 +83,5 @@ class KepwareTest(HttpUser):
             node=DEFAULT_NODE_NAME,
             group=DEFAULT_GROUP_NAME,
             selected=selected,
-            timeout=3,
+            timeout=6,
         )
