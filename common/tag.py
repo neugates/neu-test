@@ -52,11 +52,11 @@ def random_value(tag, length=0):
     elif tag['type'] == config.NEU_TYPE_DWORD:
         value = random.randint(0, 4294967295)
     elif tag['type'] == config.NEU_TYPE_INT64:
-        value = random.randint(-9223372036854775808, 9223372036854775807)
+        value = random.randint(-9007199254740991, 9007199254740991)
     elif tag['type'] == config.NEU_TYPE_UINT64:
-        value = random.randint(0, 18446744073709551615)
+        value = random.randint(0, 9007199254740991)
     elif tag['type'] == config.NEU_TYPE_LWORD:
-        value = random.randint(0, 18446744073709551615)
+        value = random.randint(0, 9007199254740991)
     elif tag['type'] == config.NEU_TYPE_FLOAT:
         value = random.uniform(-1000000, 1000000)
     elif tag['type'] == config.NEU_TYPE_DOUBLE:
@@ -64,6 +64,7 @@ def random_value(tag, length=0):
     elif tag['type'] == config.NEU_TYPE_STRING:
         value = api.random_string(length)
     elif tag['type'] == config.NEU_TYPE_BYTES:
+        value = []
         for i in range(0, length):
             tmp = random.randint(0, 255)
             value.append(tmp)
@@ -145,16 +146,74 @@ def write_and_check(c, tags, map_tags, request_name, node_name, group_name):
     with c.write_tag(node_name, group_name, tag['name'], value) as response:
         response.request_meta['name'] = request_name
         if response.status_code == 200:
-            time.sleep(0.15)  # 0.15-0.2
+            time.sleep(0.2)  # 0.15-0.2
             c.read_and_update_tags(
                 node_name, group_name, map_tags)
             if tag_value_compare(map_tags[tag['name']], value):
                 response.success()
             else:
-                logging.warning("write %s %s tag %s %s value %s(%s) error", node_name, group_name,
-                                tag['name'], tag['address'], value, map_tags[tag['name']]['value'])
-                response.failure("write tag error")
+                logging.warning("write %s %s tag %s %s type %d value %s(%s) error", node_name, group_name,
+                                tag['name'], tag['address'], tag['type'], value, map_tags[tag['name']]['value'])
+                response.failure("write tag then check value error")
         else:
-            logging.warning("write error %s %s %s %s %s", node_name, group_name, tag['name'],
+            logging.warning("write error %s %s %s %d %s %s", node_name, group_name, tag['name'], tag['type'],
+                            response.status_code, response.json())
+            response.failure("Failed to write tag")
+
+
+def get_multiple_write_tags(tags):
+    tv = []
+    for tag in tags:
+        v = random_value(tag, tag['length'])
+        tv.append((tag, v))
+
+    return tv
+
+
+def prepare_multiple_write_tags(tags, min_tags=1, max_tags=20):
+    rw_tags = list(filter(lambda tag: tag['attribute'] == config.NEU_TAG_ATTRIBUTE_RW, tags))
+    num_tags_to_select = random.randint(min_tags, min(max_tags, len(rw_tags)))
+    selected_write_tags = random.sample(rw_tags, num_tags_to_select)
+    return get_multiple_write_tags(selected_write_tags)
+
+
+def write_tags_and_check(c, tags, map_tags, request_name, node_name, group_name):
+    tags_data = [{"tag": tag['name'], "value": value} for tag, value in tags]
+
+    with c.write_tags(node_name, group_name, tags_data) as response:
+        response.request_meta['name'] = request_name
+        if response.status_code == 200:
+            response.success()
+        else:
+            logging.warning("write error %s %s %s %s", node_name, group_name, 
+                            response.status_code, response.json())
+            response.failure("Failed to write tags")
+
+
+def fixed_write_and_check(c, node_name, group_name, map_tags, tag, request_name):
+    with c.write_tag(node_name, group_name, tag['name'], tag['v']) as response:
+        response.request_meta['name'] = request_name
+        if response.status_code == 200:
+            time.sleep(0.15)  # 0.15-0.2
+            c.read_and_update_tags(node_name, group_name, map_tags)
+            if tag_value_compare(map_tags[tag['name']], tag['v']):
+                response.success()
+            else:
+                logging.warning("write %s %s tag %s %s type %d value %s(%s) error", node_name, group_name,
+                                tag['name'], tag['address'], tag['type'], tag['v'], map_tags[tag['name']]['value'])
+                response.failure("write tag then check value error")
+        else:
+            logging.warning("write error %s %s %s %d %s %s", node_name, group_name, tag['name'], tag['type'],
+                            response.status_code, response.json())
+            response.failure("Failed to write tag")
+
+
+def fixed_write_multiple_tags(c, node_name, group_name, tags_data, request_name):
+    with c.write_tags(node_name, group_name, tags_data) as response:
+        response.request_meta['name'] = request_name
+        if response.status_code == 200:
+            response.success()
+        else:   
+            logging.warning("write error %s %s %s %s", node_name, group_name, 
                             response.status_code, response.json())
             response.failure("Failed to write tags")
