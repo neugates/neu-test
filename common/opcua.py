@@ -72,6 +72,9 @@ def opcua_value_equal(tag1: dict, tag2: dict, type: int) -> bool:
     if tag1.get("value", None) is None:
         return False
 
+    if tag2.get("value", None) is None:
+        return False
+
     if type == config.NEU_TYPE_FLOAT or type == config.NEU_TYPE_DOUBLE:
         return abs(tag1["value"] - tag2["value"]) < 0.001
     return tag1["value"] == tag2["value"]
@@ -522,12 +525,13 @@ def opcua_node_setting(
 def opcua_read_check(
     api: api.NeuronAPI,
     test: str,
+    method: str,
     node: str,
     group: str,
     selected: List[dict],
 ) -> dict:
     with api.read_tags(node, group) as response:
-        response.request_meta["name"] = f"{test} read tags"
+        response.request_meta["name"] = f"{test} {method} check"
         if response.status_code == 200:
             tags = response.json()["tags"]
             result = list(
@@ -538,8 +542,13 @@ def opcua_read_check(
             )
 
             if len(result) == 0:
-                response.failure("read tags error")
-                return
+                reason = f"[opcua_read_check {method}] Result zero, code:{response.status_code}, len:{len(result)}"
+                response.failure(reason)
+                logging.warning(reason)
+            elif len(result) != len(selected):
+                reason = f"[opcua_read_check {method}] Result exception, code:{response.status_code}, len:{len(result)}, selected:{len(selected)}"
+                response.failure(reason)
+                logging.warning(reason)
             else:
                 for r in result:
                     for s in selected:
@@ -547,12 +556,15 @@ def opcua_read_check(
                             if opcua_value_equal(r, s, s["type"]):
                                 response.success()
                             else:
-                                response.failure(f"write/read tag:{r['name']} error")
-                                logging.warning(
-                                    f"{test} check tag:{r['name']} error, write:{s['value']}, read:{r['value']}"
-                                )
+                                reason = f"[opcua_read_check {method}] Check tag:{r['name']} error, write:{s.get('value', None)}, read:{r.get('value', None)}"
+                                response.failure(reason)
+                                logging.warning(reason)
         else:
-            response.failure("Failed to read tags")
+            reason = (
+                f"[opcua_read_check] Response exception, code:{response.status_code}"
+            )
+            response.failure(reason)
+            logging.warning(reason)
 
 
 def opcua_default_node(
@@ -582,10 +594,15 @@ def opcua_read_tags(
             if len(result) == 0:
                 response.success()
             else:
-                # logging.warning("read tags error" + str(result))
-                response.failure("read tags error")
+                reason = f"[opcua_read_tags] Some tags value is none, code:{response.status_code}"
+                response.failure(reason)
+                logging.warning(reason)
         else:
-            response.failure("Failed to read tags")
+            reason = (
+                f"[opcua_read_tags] Failed to read tags, code:{response.status_code}"
+            )
+            response.failure(reason)
+            logging.warning(reason)
 
 
 def opcua_write_tag(
@@ -595,20 +612,18 @@ def opcua_write_tag(
     group: str,
     selected: List[dict],
     timeout: float = 0.5,
-) -> dict:
+) -> None:
     for tag in selected:
         with api.write_tag(node, group, tag["name"], tag["value"]) as response:
             response.request_meta["name"] = f"{test} write tag"
             if response.status_code != 200:
-                response.failure("Failed to write tag")
-                logging.warning(
-                    f"{test} write tag, code:{response.status_code}, error:{response.text}, tag:{tag}"
-                )
-
+                reason = f"{test} Write tag, code:{response.status_code}, error:{response.text}, tag:{tag}"
+                response.failure(reason)
+                logging.warning(reason)
                 return
 
     time.sleep(timeout)
-    opcua_read_check(api, test, node, group, selected)
+    opcua_read_check(api, test, "write tag", node, group, selected)
 
 
 def opcua_write_tags(
@@ -618,7 +633,7 @@ def opcua_write_tags(
     group: str,
     selected: List[dict],
     timeout: float = 0.5,
-) -> dict:
+) -> None:
     with api.write_tags(
         node,
         group,
@@ -626,15 +641,15 @@ def opcua_write_tags(
     ) as response:
         response.request_meta["name"] = f"{test} write tags"
         if response.status_code != 200:
-            response.failure("Failed to write tags")
-            logging.warning(
-                f"{test} write tags, code:{response.status_code}, error:{response.text}"
+            reason = (
+                f"{test} Write tags, code:{response.status_code}, error:{response.text}"
             )
-
+            response.failure(reason)
+            logging.warning(reason)
             return
 
     time.sleep(timeout)
-    opcua_read_check(api, test, node, group, selected)
+    opcua_read_check(api, test, "write tags", node, group, selected)
 
 
 if __name__ == "__main__":
